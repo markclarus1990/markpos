@@ -14,14 +14,15 @@ const publicRoutes = [
 
 const onboardingRoute = '/onboarding';
 
+function isOnboardingRoute(pathname: string): boolean {
+  return pathname === onboardingRoute || pathname.startsWith(onboardingRoute);
+}
+
 function isPublicRoute(pathname: string): boolean {
+  if (pathname === '/') return true;
   return publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(route),
   );
-}
-
-function isOnboardingRoute(pathname: string): boolean {
-  return pathname === onboardingRoute || pathname.startsWith(onboardingRoute);
 }
 
 function isProtectedRoute(pathname: string): boolean {
