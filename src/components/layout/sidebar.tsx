@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   ShoppingCart,
+  Receipt,
   Package,
   ChevronLeft,
   Menu,
@@ -24,6 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'POS', href: '/pos', icon: ShoppingCart },
+  { name: 'Sales', href: '/sales', icon: Receipt },
   { name: 'Products', href: '/products', icon: Package },
 ] as const;
 

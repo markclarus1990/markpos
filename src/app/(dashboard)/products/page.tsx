@@ -1,13 +1,14 @@
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { listProducts, listCategories } from '@/lib/products/queries';
+import { listProducts, listCategories, listBrands } from '@/lib/products/queries';
 import { ProductTable } from '@/components/products/product-table';
 
 interface PageProps {
   searchParams: Promise<{
     search?: string;
     categoryId?: string;
+    brandId?: string;
     status?: string;
     productType?: string;
     page?: string;
@@ -18,15 +19,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
 
-  const [result, categories] = await Promise.all([
+  const [result, categories, brands] = await Promise.all([
     listProducts({
       ...(params.search ? { search: params.search } : {}),
       ...(params.categoryId ? { categoryId: params.categoryId } : {}),
+      ...(params.brandId ? { brandId: params.brandId } : {}),
       ...(params.status ? { status: params.status } : {}),
       ...(params.productType ? { productType: params.productType } : {}),
       page,
     }),
     listCategories(),
+    listBrands(),
   ]);
 
   return (
@@ -46,8 +49,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         total={result.total}
         currentPage={page}
         categories={categories}
+        brands={brands}
         {...(params.search ? { search: params.search } : {})}
         {...(params.categoryId ? { categoryId: params.categoryId } : {})}
+        {...(params.brandId ? { brandId: params.brandId } : {})}
         {...(params.status ? { status: params.status } : {})}
         {...(params.productType ? { productType: params.productType } : {})}
       />

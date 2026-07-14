@@ -20,7 +20,7 @@ interface ProductItem {
   created_at: string;
 }
 
-interface Category {
+interface Option {
   id: string;
   name: string;
 }
@@ -29,9 +29,11 @@ interface ProductTableProps {
   products: ProductItem[];
   total: number;
   currentPage: number;
-  categories: Category[];
+  categories: Option[];
+  brands: Option[];
   search?: string;
   categoryId?: string;
+  brandId?: string;
   status?: string;
   productType?: string;
 }
@@ -43,8 +45,10 @@ export function ProductTable({
   total,
   currentPage,
   categories,
+  brands,
   search: initialSearch,
   categoryId: initialCategoryId,
+  brandId: initialBrandId,
   status: initialStatus,
   productType: initialProductType,
 }: ProductTableProps) {
@@ -112,6 +116,17 @@ export function ProductTable({
           <option value="">All Categories</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <select
+          value={initialBrandId ?? ''}
+          onChange={(e) => handleFilterChange('brandId', e.target.value || undefined)}
+          className="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="">All Brands</option>
+          {brands.map((b) => (
+            <option key={b.id} value={b.id}>{b.name}</option>
           ))}
         </select>
 

@@ -1,15 +1,17 @@
-import { PageHeader } from '@/components/shared/page-header';
+import { getPosCatalog, getPosCategories } from '@/lib/pos/queries';
+import { PosTerminal } from './pos-terminal';
 
-export default function POSPage() {
+export default async function POSPage() {
+  const [catalog, categories] = await Promise.all([
+    getPosCatalog({ pageSize: 200 }),
+    getPosCategories(),
+  ]);
+
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title="Point of Sale"
-        description="Process sales and manage transactions"
-      />
-      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
-        POS terminal will be implemented in a future build
-      </div>
-    </div>
+    <PosTerminal
+      initialItems={catalog.items}
+      initialTotal={catalog.total}
+      categories={categories}
+    />
   );
 }

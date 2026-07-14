@@ -1,4 +1,5 @@
-import { AlertTriangle, Package, ShoppingCart, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { AlertTriangle, ArrowRight, Package, ShoppingCart, TrendingUp } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { ChartWidget } from '@/components/dashboard/chart-widget';
 import { CompactList } from '@/components/dashboard/compact-list';
@@ -128,15 +129,24 @@ export default async function DashboardPage() {
 
         <ChartWidget title="Recent Sales">
           {recentSales.length > 0 ? (
-            <CompactList
-              items={recentSales.map((sale) => ({
-                id: sale.id,
-                primary: sale.receiptNumber,
-                secondary: `${formatTime(sale.createdAt)} \u2022 ${sale.itemCount} item${sale.itemCount !== 1 ? 's' : ''} \u2022 ${sale.paymentMethod}`,
-                tertiary: `$${Number(sale.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-              }))}
-              emptyMessage="No sales yet"
-            />
+            <>
+              <CompactList
+                items={recentSales.map((sale) => ({
+                  id: sale.id,
+                  primary: sale.receiptNumber,
+                  secondary: `${formatTime(sale.createdAt)} \u2022 ${sale.itemCount} item${sale.itemCount !== 1 ? 's' : ''} \u2022 ${sale.paymentMethod}`,
+                  tertiary: `$${Number(sale.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                  href: `/sales/${sale.id}`,
+                }))}
+                emptyMessage="No sales yet"
+              />
+              <Link
+                href="/sales"
+                className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                View all sales <ArrowRight className="h-3 w-3" />
+              </Link>
+            </>
           ) : (
             <div className="flex h-48 items-center justify-center rounded-lg border border-dashed">
               <div className="text-center">
