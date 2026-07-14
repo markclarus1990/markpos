@@ -4,3 +4,4 @@ export { EmptyState } from './empty-state';
 export { ErrorState } from './error-state';
 export { LoadingSkeleton } from './loading-skeleton';
 export { ThemeSwitcher } from './theme-switcher';
+export { StatusBadge } from './status-badge';

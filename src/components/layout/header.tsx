@@ -25,21 +25,25 @@ export function Header({ className }: HeaderProps) {
         className,
       )}
     >
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex flex-1 items-center gap-2 min-w-0">
         {organization && (
-          <span className="text-sm font-medium text-muted-foreground">
-            {organization.name}
-          </span>
-        )}
-        {branch && (
           <>
-            <span className="text-muted-foreground">/</span>
-            <span className="text-sm text-muted-foreground">{branch.name}</span>
+            <span className="truncate text-sm font-medium text-foreground">
+              {organization.name}
+            </span>
+            {branch && (
+              <>
+                <span className="text-muted-foreground/40 shrink-0">/</span>
+                <span className="truncate text-sm text-muted-foreground">
+                  {branch.name}
+                </span>
+              </>
+            )}
           </>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 shrink-0">
         <ThemeSwitcher />
 
         {user && (
@@ -57,10 +61,10 @@ export function Header({ className }: HeaderProps) {
               </div>
               {!isMobile && (
                 <>
-                  <span className="text-sm">
+                  <span className="max-w-[120px] truncate text-sm">
                     {user.displayName ?? user.email}
                   </span>
-                  <ChevronDown className="size-4 text-muted-foreground" />
+                  <ChevronDown className="size-4 text-muted-foreground shrink-0" />
                 </>
               )}
             </Button>
