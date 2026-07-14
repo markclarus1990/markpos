@@ -8,7 +8,7 @@ type SupabaseContextValue = {
   supabase: SupabaseClient | null;
 };
 
-const SupabaseContext = createContext<SupabaseContextValue>({ supabase: null });
+export const SupabaseContext = createContext<SupabaseContextValue>({ supabase: null });
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
   const [supabase] = useState(() => {

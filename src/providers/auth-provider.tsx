@@ -9,7 +9,7 @@ import {
   startTransition,
   type ReactNode,
 } from 'react';
-import { useSupabase } from '@/providers/supabase-provider';
+import { SupabaseContext } from '@/providers/supabase-provider';
 import { useAuthStore } from '@/stores/auth-store';
 import type {
   AppContext,
@@ -28,7 +28,8 @@ const AppContextCtx = createContext<AppContext>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const supabase = useSupabase();
+  const supabaseCtx = useContext(SupabaseContext);
+  const supabase = supabaseCtx.supabase;
   const [user, setUser] = useState<AuthUser | null>(null);
   const [organization, setOrganization] =
     useState<DatabaseOrganization | null>(null);
@@ -39,11 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [branches, setBranches] = useState<
     Array<Pick<DatabaseBranch, 'id' | 'name' | 'code'>>
   >([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(supabase !== null);
 
   const setStoreBranch = useAuthStore((s) => s.setBranch);
 
   const loadUserContext = useCallback(async () => {
+    if (!supabase) return;
+
     try {
       const {
         data: { user: authUser },
@@ -135,6 +138,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase, setStoreBranch]);
 
   useEffect(() => {
+    if (!supabase) return;
+
     loadUserContext();
 
     const {

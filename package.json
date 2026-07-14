@@ -29,7 +29,6 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.81.0",
-    "supabase": "^2.109.1",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
@@ -48,6 +47,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-tailwindcss": "^4.1.0",
     "jsdom": "^29.1.1",
+    "supabase": "^2.109.1",
     "prettier": "^3.9.5",
     "tailwindcss": "^4.3.2",
     "typescript": "^5",
