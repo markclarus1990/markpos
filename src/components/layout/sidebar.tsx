@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Receipt,
   Package,
+  ClipboardList,
   ChevronLeft,
   Menu,
   X,
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'POS', href: '/pos', icon: ShoppingCart },
   { name: 'Sales', href: '/sales', icon: Receipt },
   { name: 'Products', href: '/products', icon: Package },
+  { name: 'Inventory', href: '/inventory', icon: ClipboardList },
 ] as const;
 
 const secondaryNav = [
