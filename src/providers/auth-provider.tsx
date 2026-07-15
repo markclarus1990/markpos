@@ -27,6 +27,22 @@ const AppContextCtx = createContext<AppContext>({
   isLoading: true,
 });
 
+function readServerBranchData(): {
+  activeBranchId: string;
+  activeBranchName: string;
+  activeBranchCode: string;
+  branches: Array<{ id: string; name: string; code: string }>;
+} | null {
+  if (typeof document === 'undefined') return null;
+  const el = document.getElementById('server-active-branch');
+  if (!el?.textContent) return null;
+  try {
+    return JSON.parse(el.textContent);
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const supabaseCtx = useContext(SupabaseContext);
   const supabase = supabaseCtx.supabase;
@@ -42,10 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   >([]);
   const [isLoading, setIsLoading] = useState(supabase !== null);
 
-  const setStoreBranch = useAuthStore((s) => s.setBranch);
+  const setStoreBranchId = useAuthStore((s) => s.setBranch);
 
   const loadUserContext = useCallback(async () => {
     if (!supabase) return;
+
+    const serverData = readServerBranchData();
 
     try {
       const {
@@ -109,11 +127,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         startTransition(() => {
           setOrganizations(orgs);
           setOrganization(firstOrg as unknown as DatabaseOrganization);
-          if (branchesData && branchesData.length > 0) {
-            setBranches(branchesData);
-            const firstBranch = branchesData[0]!;
+
+          const allBranches = branchesData ?? [];
+
+          if (serverData && serverData.activeBranchId) {
+            const matchedBranch = allBranches.find(
+              (b) => b.id === serverData.activeBranchId,
+            );
+            if (matchedBranch) {
+              setBranches(allBranches);
+              setBranch(matchedBranch as unknown as DatabaseBranch);
+              setStoreBranchId(matchedBranch.id);
+            } else if (allBranches.length > 0) {
+              setBranches(allBranches);
+              const firstBranch = allBranches[0]!;
+              setBranch(firstBranch as unknown as DatabaseBranch);
+              setStoreBranchId(firstBranch.id);
+            } else {
+              setBranches([]);
+              setBranch(null);
+            }
+          } else if (allBranches.length > 0) {
+            setBranches(allBranches);
+            const firstBranch = allBranches[0]!;
             setBranch(firstBranch as unknown as DatabaseBranch);
-            setStoreBranch(firstBranch.id);
+            setStoreBranchId(firstBranch.id);
           } else {
             setBranches([]);
             setBranch(null);
@@ -135,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       });
     }
-  }, [supabase, setStoreBranch]);
+  }, [supabase, setStoreBranchId]);
 
   useEffect(() => {
     if (!supabase) return;

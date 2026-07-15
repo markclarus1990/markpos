@@ -10,6 +10,13 @@ import type { DatabaseOrganization, DatabaseBranch } from '@/types/database';
 interface SettingsTabsProps {
   organization: Pick<DatabaseOrganization, 'id' | 'name' | 'email' | 'phone' | 'address' | 'timezone' | 'currency_code'>;
   branches: Array<Pick<DatabaseBranch, 'id' | 'name' | 'code' | 'address' | 'phone' | 'email' | 'is_active'>>;
+  orgId: string;
+  activeBranchId: string | null;
+  roles: Array<{ id: string; name: string }>;
+  staffMap: Record<string, Array<{
+    id: string; userId: string; roleId: string | null; isActive: boolean;
+    userIdentifier: string; roleName: string | null;
+  }>>;
 }
 
 const TABS = [
@@ -20,7 +27,7 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]['id'];
 
-export function SettingsTabs({ organization, branches }: SettingsTabsProps) {
+export function SettingsTabs({ organization, branches, orgId, activeBranchId, roles, staffMap }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('general');
 
   return (
@@ -47,7 +54,15 @@ export function SettingsTabs({ organization, branches }: SettingsTabsProps) {
 
       {activeTab === 'general' && <GeneralTab organization={organization} />}
       {activeTab === 'regional' && <RegionalTab organization={organization} />}
-      {activeTab === 'branches' && <BranchesTab branches={branches} />}
+      {activeTab === 'branches' && (
+        <BranchesTab
+          branches={branches}
+          orgId={orgId}
+          activeBranchId={activeBranchId}
+          roles={roles}
+          staffMap={staffMap}
+        />
+      )}
     </div>
   );
 }

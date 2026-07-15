@@ -478,3 +478,253 @@ describe('getSaleReceipt', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('getSale org-scoping regression', () => {
+  it('queries by organization_id not by branch_id', async () => {
+    const eqCalls: Array<{ table: string; field: string; value: unknown }> = [];
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'organization_members') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ organization_id: 'org-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      if (table === 'branches') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ id: 'branch-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      const q = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn((field: string, value: unknown) => {
+          eqCalls.push({ table, field, value });
+          return q;
+        }),
+        single: vi.fn(() => ({
+          then: (onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve({
+              data: table === 'sales' ? {
+                id: 'sale-1',
+                receipt_number: 'RCP-001',
+                created_at: '2025-01-01T10:00:00Z',
+                status: 'completed',
+                subtotal: 100,
+                total: 150,
+                payment_method: 'cash',
+                branch: { name: 'Main Branch' },
+                organization: { name: 'Org' },
+              } : null,
+              error: null,
+            }).then(onfulfilled),
+          catch: vi.fn(),
+        })),
+        order: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+          Promise.resolve(mockThenable([])).then(onfulfilled),
+        ),
+        catch: vi.fn(),
+      };
+      return q;
+    });
+
+    const result = await getSale('sale-1');
+    expect(result).not.toBeNull();
+
+    const branchEqCalls = eqCalls.filter(
+      (c) => c.table === 'sales' && c.field === 'branch_id',
+    );
+    expect(branchEqCalls).toHaveLength(0);
+
+    const orgEqCalls = eqCalls.filter(
+      (c) => c.table === 'sales' && c.field === 'organization_id',
+    );
+    expect(orgEqCalls.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('getSaleReceipt org-scoping regression', () => {
+  it('queries by organization_id not by branch_id', async () => {
+    const eqCalls: Array<{ table: string; field: string; value: unknown }> = [];
+
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'organization_members') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ organization_id: 'org-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      if (table === 'branches') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ id: 'branch-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      const q = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn((field: string, value: unknown) => {
+          eqCalls.push({ table, field, value });
+          return q;
+        }),
+        single: vi.fn(() => ({
+          then: (onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve({
+              data: table === 'sales' ? {
+                id: 'sale-1',
+                receipt_number: 'RCP-001',
+                created_at: '2025-01-01T10:00:00Z',
+                subtotal: 100,
+                total: 150,
+                payment_method: 'cash',
+                branch: { name: 'Main Branch' },
+                organization: { name: 'Org' },
+              } : null,
+              error: null,
+            }).then(onfulfilled),
+          catch: vi.fn(),
+        })),
+        order: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+          Promise.resolve(mockThenable([])).then(onfulfilled),
+        ),
+        catch: vi.fn(),
+      };
+      return q;
+    });
+
+    const result = await getSaleReceipt('sale-1');
+    expect(result).not.toBeNull();
+
+    const branchEqCalls = eqCalls.filter(
+      (c) => c.table === 'sales' && c.field === 'branch_id',
+    );
+    expect(branchEqCalls).toHaveLength(0);
+
+    const orgEqCalls = eqCalls.filter(
+      (c) => c.table === 'sales' && c.field === 'organization_id',
+    );
+    expect(orgEqCalls.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('listSales branch-default regression', () => {
+  it('defaults to active branch when no explicit branchId', async () => {
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'organization_members') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ organization_id: 'org-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      if (table === 'branches') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ id: 'branch-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      return {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        ilike: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
+        lt: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockReturnThis(),
+        then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+          Promise.resolve(mockThenable([])).then(onfulfilled),
+        ),
+        catch: vi.fn(),
+      };
+    });
+
+    const result = await listSales();
+    expect(result.total).toBe(0);
+  });
+
+  it('accepts explicit branchId override', async () => {
+    const captured = { branchId: '' };
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === 'organization_members') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ organization_id: 'org-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      if (table === 'branches') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+            Promise.resolve(mockThenable([{ id: 'branch-1' }])).then(onfulfilled),
+          ),
+          catch: vi.fn(),
+        };
+      }
+      const q = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn((field: string, value: unknown) => {
+          if (field === 'branch_id') captured.branchId = value as string;
+          return q;
+        }),
+        in: vi.fn().mockReturnThis(),
+        ilike: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
+        lt: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockReturnThis(),
+        then: vi.fn((onfulfilled: (v: unknown) => unknown) =>
+          Promise.resolve(mockThenable([])).then(onfulfilled),
+        ),
+        catch: vi.fn(),
+      };
+      return q;
+    });
+
+    await listSales({ branchId: 'explicit-branch' });
+    expect(captured.branchId).toBe('explicit-branch');
+  });
+});

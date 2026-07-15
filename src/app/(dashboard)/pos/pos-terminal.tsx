@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingCart, X, Minus, Plus, Trash2, Printer } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -90,6 +90,18 @@ export function PosTerminal({ initialItems, categories }: PosTerminalProps) {
   );
 
   const branchId = branch?.id ?? null;
+
+  // Clear cart when branch changes
+  const prevBranchId = useRef(branchId);
+  useEffect(() => {
+    if (prevBranchId.current !== null && prevBranchId.current !== branchId) {
+      setCart([]);
+      setError(null);
+      setZeroPriceConfirm(false);
+      setShowClearConfirm(false);
+    }
+    prevBranchId.current = branchId;
+  }, [branchId]);
 
   const addToCart = useCallback(
     (item: PosProductItem) => {

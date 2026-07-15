@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/providers/auth-provider';
 import { useIsMobile } from '@/hooks/use-media-query';
 import { signOut } from '@/lib/auth/actions';
+import { BranchSwitcher } from '@/components/branches/branch-switcher';
 
 interface HeaderProps {
   className?: string;
 }
 
 export function Header({ className }: HeaderProps) {
-  const { user, organization, branch } = useAppContext();
+  const { user, organization } = useAppContext();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -31,14 +32,8 @@ export function Header({ className }: HeaderProps) {
             <span className="truncate text-sm font-medium text-foreground">
               {organization.name}
             </span>
-            {branch && (
-              <>
-                <span className="text-muted-foreground/40 shrink-0">/</span>
-                <span className="truncate text-sm text-muted-foreground">
-                  {branch.name}
-                </span>
-              </>
-            )}
+            <span className="text-muted-foreground/40 shrink-0">/</span>
+            <BranchSwitcher />
           </>
         )}
       </div>

@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { PageHeader } from '@/components/shared/page-header';
 import { SettingsTabs } from './settings-tabs';
+import { getActiveBranch, getBranchesStaff, getOrganizationRoles } from '@/lib/branches/queries';
 
 function getSupabaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -65,14 +66,24 @@ async function getSettingsData() {
     throw new Error('Failed to load settings');
   }
 
+  const activeBranch = await getActiveBranch(supabase, orgId);
+  const roles = await getOrganizationRoles(supabase, orgId);
+
+  const branchIds = (branchesResult.data ?? []).map((b) => b.id);
+  const staffMap = await getBranchesStaff(supabase, branchIds);
+
   return {
     organization: orgResult.data,
     branches: branchesResult.data ?? [],
+    activeBranchId: activeBranch?.id ?? null,
+    roles,
+    staffMap,
+    orgId,
   };
 }
 
 export default async function SettingsPage() {
-  const { organization, branches } = await getSettingsData();
+  const data = await getSettingsData();
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -81,7 +92,14 @@ export default async function SettingsPage() {
         description="Configure your organization preferences"
       />
       <Suspense fallback={<div className="text-sm text-muted-foreground">Loading settings...</div>}>
-        <SettingsTabs organization={organization} branches={branches} />
+        <SettingsTabs
+          organization={data.organization}
+          branches={data.branches}
+          orgId={data.orgId}
+          activeBranchId={data.activeBranchId}
+          roles={data.roles}
+          staffMap={data.staffMap}
+        />
       </Suspense>
     </div>
   );

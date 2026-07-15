@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getActiveBranchId } from '@/lib/branches/queries';
 
 function getSupabaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,17 +37,6 @@ async function getOrgId(supabase: ReturnType<typeof createServerClient>): Promis
   const member = members?.[0];
   if (!member?.organization_id) throw new Error('No organization found');
   return member.organization_id;
-}
-
-async function getActiveBranchId(supabase: ReturnType<typeof createServerClient>, orgId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from('branches')
-    .select('id')
-    .eq('organization_id', orgId)
-    .eq('is_active', true)
-    .order('created_at', { ascending: true })
-    .limit(1);
-  return data?.[0]?.id ?? null;
 }
 
 export interface InventoryItem {
