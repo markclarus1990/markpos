@@ -11,6 +11,9 @@ export interface DatabaseOrganization {
   id: string;
   name: string;
   slug: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
   timezone: string;
   currency_code: string;
   country_code: string;

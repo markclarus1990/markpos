@@ -16,6 +16,7 @@ import {
   Store,
   Tags,
   Bookmark,
+  Settings,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils/cn';
@@ -38,12 +39,16 @@ const secondaryNav = [
   { name: 'Brands', href: '/brands', icon: Bookmark },
 ] as const;
 
+const bottomNav = [
+  { name: 'Settings', href: '/settings', icon: Settings },
+] as const;
+
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
 
-type NavItemType = (typeof navigation)[number] | (typeof secondaryNav)[number];
+type NavItemType = (typeof navigation)[number] | (typeof secondaryNav)[number] | (typeof bottomNav)[number];
 
 function NavItem({
   item,
@@ -143,6 +148,18 @@ function SidebarContent({ isCollapsed, pathname, onToggle, onNavClick }: Sidebar
             onClick={onNavClick}
           />
         ))}
+
+        <div className="mt-auto pt-2 border-t">
+          {bottomNav.map((item) => (
+            <NavItem
+              key={item.name}
+              item={item}
+              isCollapsed={isCollapsed}
+              pathname={pathname}
+              onClick={onNavClick}
+            />
+          ))}
+        </div>
       </nav>
 
       <div className="border-t p-2">
