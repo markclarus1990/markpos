@@ -9,6 +9,7 @@ import {
   Receipt,
   Package,
   ClipboardList,
+  BarChart3,
   ChevronLeft,
   Menu,
   X,
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Sales', href: '/sales', icon: Receipt },
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Inventory', href: '/inventory', icon: ClipboardList },
+  { name: 'Reports', href: '/reports', icon: BarChart3 },
 ] as const;
 
 const secondaryNav = [
