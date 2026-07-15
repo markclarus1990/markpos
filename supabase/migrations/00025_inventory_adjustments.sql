@@ -40,7 +40,7 @@ DECLARE
   v_qty_after NUMERIC(15,4);
   v_item_org_id UUID;
   v_branch_org_id UUID;
-  v_product_record RECORD;
+  v_track_inventory BOOLEAN;
   v_allows_decimal BOOLEAN;
   v_err_msg TEXT;
 BEGIN
@@ -78,7 +78,7 @@ BEGIN
     pi.organization_id,
     p.track_inventory,
     COALESCE(u.allows_decimal, false) AS allows_decimal
-  INTO v_item_org_id, v_product_record, v_allows_decimal
+  INTO v_item_org_id, v_track_inventory, v_allows_decimal
   FROM public.product_items pi
   JOIN public.products p ON p.id = pi.product_id
   LEFT JOIN public.units u ON u.id = p.unit_id
@@ -92,7 +92,7 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'Item does not belong to this organization');
   END IF;
 
-  IF NOT COALESCE(v_product_record.track_inventory, true) THEN
+  IF NOT COALESCE(v_track_inventory, true) THEN
     RETURN jsonb_build_object('success', false, 'error', 'Item does not track inventory');
   END IF;
 
